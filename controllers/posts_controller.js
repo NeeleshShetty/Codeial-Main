@@ -21,10 +21,19 @@ const Comments = require("../models/comments");
 //ASync await
 module.exports.create = async function (req, res) {
   try {
-    await Posts.create({
+   let post = await Posts.create({
       content: req.body.content,
       user: req.user._id,
     });
+
+    if (res.xhr) {
+      return res.status(200).json({
+        data: {
+          post:post
+        },
+        message:"Post Created"
+      })
+    }
 
     return res.redirect("back");
   } catch (error) {
@@ -60,7 +69,16 @@ module.exports.destroy = async function (req, res) {
       //remove the post
       post.remove();
 
-       await Comments.deleteMany({ post: req.body.id });
+      await Comments.deleteMany({ post: req.body.id });
+      
+      if (req.xhr) {
+        return res.status(200).json({
+          data: {
+            post_id: req.params.id
+          },
+          message:"Post Deleted"
+        })
+      }
 
       return res.redirect("/");
     } else {
