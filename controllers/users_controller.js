@@ -10,18 +10,42 @@ module.exports.profile = function (req, res) {
 };
 
 // update action
-module.exports.update = function (req, res) {
+module.exports.update = async function (req, res) {
   //to check if the user is matched or signed in to avoid the fiddling with the data
+  //   if (req.user.id == req.params.id) {
+  //     User.findByIdAndUpdate(req.params.id, req.body, function (err, user) {
+  //       return res.redirect("back");
+  //     });
+  //   } else {
+  //     return res.status(401).send("unauthorized");
+  //   }
+
   if (req.user.id == req.params.id) {
-    User.findByIdAndUpdate(req.params.id, req.body, function (err, user) {
+    try {
+      let user = await User.findById(req.params.id);
+      User.uploadedAvatar(req, res, function (err) {
+        if (err) {
+          console.log("**********MULter ERr");
+        }
+        console.log(req.file);
+        user.name = req.body.name;
+        user.email = req.body.email;
+
+        if (req.file) {
+          //this is saving the path of the uploaded file into the avatar field in the user
+          user.avatars = User.avatarPath + "/" + req.file.filename;
+        }
+        user.save();
+      });
+    } catch (error) {
       return res.redirect("back");
-    });
+    }
   } else {
-    return res.status(401).send("unauthorized");
+    return res.redirect("back");
   }
 };
 
-// render the sign up page
+// // render the sign up page
 module.exports.signUp = function (req, res) {
   if (req.isAuthenticated()) {
     return res.redirect("/users/sign-in");
