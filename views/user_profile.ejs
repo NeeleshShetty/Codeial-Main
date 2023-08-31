@@ -2,6 +2,7 @@
 
 <% if(user.id == profile_user.id ){ %>
 <!-- if matches then show the form -->
+<img src="<%= profile_user.avatar %> " alt="<%= user.name %>" width="100" />
 <form
   action="/users/update/<%= profile_user.id %>"
   enctype="multipart/form-data"
